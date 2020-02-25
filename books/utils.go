@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -14,7 +15,10 @@ func serverError(err error) (events.APIGatewayProxyResponse, error) {
 	errorLogger.Println(err.Error())
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusInternalServerError,
-		Body:       http.StatusText(http.StatusInternalServerError),
+		Headers: map[string]string{
+			"Access-Control-Allow-Origin": "*",
+		},
+		Body: fmt.Sprintf("%v", err.Error()),
 	}, nil
 }
 

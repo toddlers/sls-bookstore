@@ -51,7 +51,7 @@ func show(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, er
 	bk, err := getItem(isbn)
 
 	if err != nil {
-		return serverError(err)
+		return serverError(fmt.Errorf("Not able to fetch the books : %v", err))
 	}
 
 	// The APIGatewayProxyResponse.Body field should be a string,
@@ -60,14 +60,18 @@ func show(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, er
 	js, err := json.Marshal(bk)
 
 	if err != nil {
-		return serverError(err)
+		return serverError(fmt.Errorf("Not able to parse marshal the item : %v", err))
 	}
 
 	// Return : 200 OK status
 	// Record as the body
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusOK,
-		Body:       string(js),
+		Headers: map[string]string{
+			"Access-Control-Allow-Origin": "*",
+			"Content-Type":                "application/json",
+		},
+		Body: string(js),
 	}, nil
 }
 
@@ -92,7 +96,7 @@ func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 
 	err = putItem(bk)
 	if err != nil {
-		return serverError(err)
+		return serverError(fmt.Errorf("Not able to put back book : %v", err))
 	}
 
 	return events.APIGatewayProxyResponse{
